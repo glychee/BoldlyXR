@@ -26,6 +26,12 @@ PN532 nfc(pn532hsu);
 
 #include <Keyboard.h>
 
+void sendKeypress(char keyChar){
+  Keyboard.press(keyChar);
+  delay(50);
+  Keyboard.release(keyChar);
+}
+
 //variables for knob state tracking and key output
 volatile int state = 0;
 int previousstate = 0;
@@ -61,7 +67,7 @@ void pin2changefunc() {
     else{
       state--;
     }
-    Keyboard.write(keyPresses[state]);
+    sendKeypress(keyPresses[state]);
     extendScreenSaverTimer();
     moving = true;
   }
@@ -81,7 +87,7 @@ void pin3changefunc() {
     else{
       state++;
     }
-    Keyboard.write(keyPresses[state]);
+    sendKeypress(keyPresses[state]);
     extendScreenSaverTimer();
     moving = true;
   }
@@ -142,12 +148,12 @@ void loop(void) {
     }
   }
   if (currentCardChar != previousKeyChar){
-    Keyboard.write(currentCardChar);
+    sendKeypress(currentCardChar);
     previousKeyChar = currentCardChar;
   }
   //screensaver code
   if(screenNeedsSaving&&(millis()-lastActivityTime>screenSaveTimeDuration)){
-    Keyboard.write(screenSaveChar); 
+    sendKeypress(screenSaveChar); 
     screenNeedsSaving = false;
   }
 }
