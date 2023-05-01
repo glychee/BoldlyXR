@@ -2,9 +2,11 @@
 
 uint8_t idList[40][8] = {
 {0x23, 0x1D, 0xAA, 0xC, 0x0, 0x0, 0x0, 'x'},
-{0x93, 0xA8, 0xE8, 0x1A, 0x0, 0x0, 0x0, 'z'}
+{0xC3, 0xFC, 0xEC, 0x1A, 0x0, 0x0, 0x0, 'y'},
+{0x93, 0xA8, 0xE8, 0x1A, 0x0, 0x0, 0x0, 'z'},
+{0x3, 0x98, 0x57, 0x2, 0x0, 0x0, 0x0, 'w'}
 };
-int currentStorage = 2;
+int currentStorage = 4;
 
 //************************************************
 
@@ -31,6 +33,8 @@ volatile bool moving = false;
 volatile unsigned long resetTime = 0;
 const int timerDelay = 10;
 const char keyPresses[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+char currentCardChar;
+char previousKeyChar;
 
 //variables for tracking screensaver
 bool screenNeedsSaving = true;
@@ -57,7 +61,7 @@ void pin2changefunc() {
     else{
       state--;
     }
-    Keyboard.print(keyPresses[state]);
+    Keyboard.write(keyPresses[state]);
     extendScreenSaverTimer();
     moving = true;
   }
@@ -77,7 +81,7 @@ void pin3changefunc() {
     else{
       state++;
     }
-    Keyboard.print(keyPresses[state]);
+    Keyboard.write(keyPresses[state]);
     extendScreenSaverTimer();
     moving = true;
   }
@@ -131,16 +135,19 @@ void loop(void) {
       Serial.println(array_cmp(uid,idList[counter],7,7));
       if(array_cmp(uid,idList[counter],7,7)){
           scannedBefore=true;
-          // check https://www.arduino.cc/reference/en/language/functions/usb/keyboard/keyboardmodifiers/
-          Keyboard.print((char)idList[counter][7]);
+          currentCardChar = (char)idList[counter][7];
           extendScreenSaverTimer();  
-          delay(3000);
+          delay(10);
       }
     }
   }
+  if (currentCardChar != previousKeyChar){
+    Keyboard.write(currentCardChar);
+    previousKeyChar = currentCardChar;
+  }
   //screensaver code
   if(screenNeedsSaving&&(millis()-lastActivityTime>screenSaveTimeDuration)){
-    Keyboard.print(screenSaveChar); 
+    Keyboard.write(screenSaveChar); 
     screenNeedsSaving = false;
   }
 }
