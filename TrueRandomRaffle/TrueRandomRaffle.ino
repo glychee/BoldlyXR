@@ -5,15 +5,19 @@
 PN532_HSU pn532hsu(Serial1);
 PN532 nfc(pn532hsu);
 
-uint8_t idList[250][8] = {};
+uint8_t idList[180][8] = {};
 int currentStorage = 0;
 
 //randomised output variables
 int chanceNumber = 100; //chanceNumber 3 gives a 1 in 3 chance to win 
 char winChar = 'x';
 char loseChar = 'y';
-char alreadyTriedChar = loseChar; //change this one to a unique value like with win/lose chars to get a different scene when a card is scanned a second time
 
+//repeat cards
+char alreadyTriedChar = 'z';
+bool repeatAllowed = true;
+const long alreadyTriedCardDelay = 4000; //only after 4 seconds can unknown cards repeat their action, normal cards are instant
+unsigned long lastTriggerTime = 0;
 
 void setup(void) {
   //setup the randomness:
@@ -55,7 +59,7 @@ void loop(void) {
     
   success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);
   
-  if (success) {
+  if (success ) {
     //uncomment these two lines to always see which card is scanned
     //Serial.print("  UID Value: "); 
     //nfc.PrintHex(uid, 7);
@@ -71,7 +75,6 @@ void loop(void) {
       else{
       }
     }
-
     // if not scanned before
     if(!scannedBefore){      
       //Serial.print("Adding card to known list: ");
@@ -89,8 +92,15 @@ void loop(void) {
       //result keypresses
       result ? sendKeypress(loseChar) : sendKeypress(winChar);
       currentStorage++;
+      lastTriggerTime=millis();
       //Serial.print("Stored: "); Serial.print(currentStorage); Serial.println(" cards now."); 
       delay(5); //delay to have time between new reads
+    }
+    else{
+      if(repeatAllowed&&(millis()-lastTriggerTime>alreadyTriedCardDelay)){
+        sendKeypress(alreadyTriedChar);
+        lastTriggerTime=millis();
+      }
     }
   }
 }
