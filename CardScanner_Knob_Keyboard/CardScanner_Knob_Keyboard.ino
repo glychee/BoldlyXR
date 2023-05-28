@@ -28,7 +28,7 @@ PN532 nfc(pn532hsu);
 
 void sendKeypress(char keyChar){  //Keyboard.releaseAll();
   Keyboard.press(keyChar);
-  delay(50);
+  delay(100);
   Keyboard.release(keyChar);
 }
 
