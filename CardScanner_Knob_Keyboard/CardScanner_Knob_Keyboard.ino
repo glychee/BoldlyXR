@@ -114,6 +114,7 @@ void setup(void) {
   nfc.begin();
   // configure board to read RFID tags
   nfc.SAMConfig();
+  nfc.setPassiveActivationRetries(1);
   
   Serial.println("Waiting for an ISO14443A Card ...");
 }
