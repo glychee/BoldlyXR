@@ -26,7 +26,7 @@ PN532 nfc(pn532hsu);
 
 #include <Keyboard.h>
 
-void sendKeypress(char keyChar){
+void sendKeypress(char keyChar){  //Keyboard.releaseAll();
   Keyboard.press(keyChar);
   delay(50);
   Keyboard.release(keyChar);
@@ -41,6 +41,8 @@ const int timerDelay = 10;
 const char keyPresses[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 char currentCardChar;
 char previousKeyChar;
+char currentEncoderChar;
+char previousEncoderChar;
 
 //variables for tracking screensaver
 bool screenNeedsSaving = true;
@@ -67,7 +69,7 @@ void pin2changefunc() {
     else{
       state--;
     }
-    sendKeypress(keyPresses[state]);
+    currentEncoderChar = keyPresses[state];
     extendScreenSaverTimer();
     moving = true;
   }
@@ -87,7 +89,7 @@ void pin3changefunc() {
     else{
       state++;
     }
-    sendKeypress(keyPresses[state]);
+    currentEncoderChar = keyPresses[state];
     extendScreenSaverTimer();
     moving = true;
   }
@@ -143,13 +145,17 @@ void loop(void) {
           scannedBefore=true;
           currentCardChar = (char)idList[counter][7];
           extendScreenSaverTimer();  
-          delay(10);
+          //delay(10);
       }
     }
   }
   if (currentCardChar != previousKeyChar){
     sendKeypress(currentCardChar);
     previousKeyChar = currentCardChar;
+  }
+  if (currentEncoderChar != previousEncoderChar){
+    sendKeypress(currentEncoderChar);
+    previousEncoderChar = currentEncoderChar;
   }
   //screensaver code
   if(screenNeedsSaving&&(millis()-lastActivityTime>screenSaveTimeDuration)){
