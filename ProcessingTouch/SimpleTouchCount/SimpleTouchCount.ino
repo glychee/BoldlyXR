@@ -38,6 +38,8 @@
 #include <MPR121.h>
 #include <MPR121_Datastream.h>
 #include <Wire.h>
+#include <Keyboard.h>
+#include "MIDIUSB.h"
 
 // touch constants
 const uint32_t BAUD_RATE = 115200;
@@ -96,13 +98,45 @@ void setup() {
   delay(1000);
   MPR121.autoSetElectrodes();  // autoset all electrode settings
   digitalWrite(LED_BUILTIN, LOW);
+  //Keyboard.begin();
+}
+
+const char keyPresses[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+
+void sendKeypress(char keyChar){  //Keyboard.releaseAll();
+  Keyboard.press(keyChar);
+  delay(100);
+  Keyboard.release(keyChar);
+}
+
+void noteOn(byte channel, byte pitch, byte velocity) {
+  midiEventPacket_t noteOn = {0x09, 0x90 | channel, pitch, velocity};
+  MidiUSB.sendMIDI(noteOn);
+}
+
+void noteOff(byte channel, byte pitch, byte velocity) {
+  midiEventPacket_t noteOff = {0x08, 0x80 | channel, pitch, velocity};
+  MidiUSB.sendMIDI(noteOff);
 }
 
 void loop() {
   MPR121.updateAll();
 
   for (int i = 0; i < 12; i++) {
-      MPR121.isNewRelease(i);
+    if (MPR121.isNewTouch(i)) {
+      //Serial.print("electrode ");
+      //Serial.print(i, DEC);
+      //Serial.println(" was just touched");
+    } else if (MPR121.isNewRelease(i)) { //!! THIS LINE NEEDS TO EXIST FOR COUNT FUNCTIONALITY
+      //Serial.print("electrode ");
+      //Serial.print(i, DEC);
+      //Serial.println(" was just released");
+        noteOn(0, 48+i, 64);
+        MidiUSB.flush();
+        delay(100);
+        noteOff(0, 48+i, 64);
+        MidiUSB.flush();
+    }
   }
 
   if (MPR121_DATASTREAM_ENABLE) {
