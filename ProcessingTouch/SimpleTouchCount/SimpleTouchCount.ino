@@ -39,7 +39,9 @@
 #include <MPR121_Datastream.h>
 #include <Wire.h>
 #include <Keyboard.h>
-#include "MIDIUSB.h"
+#include "MIDIUSB.h" 
+
+const uint8_t boardChannel = 1;
 
 // touch constants
 const uint32_t BAUD_RATE = 115200;
@@ -131,10 +133,10 @@ void loop() {
       //Serial.print("electrode ");
       //Serial.print(i, DEC);
       //Serial.println(" was just released");
-        noteOn(0, 48+i, 64);
+        noteOn(boardChannel, 48+i, 64);
         MidiUSB.flush();
         delay(100);
-        noteOff(0, 48+i, 64);
+        noteOff(boardChannel, 48+i, 64);
         MidiUSB.flush();
     }
   }
