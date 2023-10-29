@@ -129,15 +129,16 @@ void loop() {
       //Serial.print("electrode ");
       //Serial.print(i, DEC);
       //Serial.println(" was just touched");
-    } else if (MPR121.isNewRelease(i)) { //!! THIS LINE NEEDS TO EXIST FOR COUNT FUNCTIONALITY
-      //Serial.print("electrode ");
-      //Serial.print(i, DEC);
-      //Serial.println(" was just released");
         noteOn(boardChannel, 48+i, 64);
         MidiUSB.flush();
         delay(100);
         noteOff(boardChannel, 48+i, 64);
         MidiUSB.flush();
+    } else if (MPR121.isNewRelease(i)) { //!! THIS LINE NEEDS TO EXIST FOR COUNT FUNCTIONALITY
+      //Serial.print("electrode ");
+      //Serial.print(i, DEC);
+      //Serial.println(" was just released");
+
     }
   }
 
