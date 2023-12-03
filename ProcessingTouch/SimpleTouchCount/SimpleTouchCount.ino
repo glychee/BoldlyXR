@@ -45,7 +45,7 @@ const uint8_t boardChannel = 1;
 
 // touch constants
 const uint32_t BAUD_RATE = 115200;
-const uint8_t MPR121_ADDR = 0x5C;  // 0x5C is the MPR121 I2C address on the Bare Touch Board
+const uint8_t MPR121_ADDR = 0x5A;  // 0x5C is the MPR121 I2C address on the Bare Touch Board
 const uint8_t MPR121_INT = 4;  // pin 4 is the MPR121 interrupt on the Bare Touch Board
 
 // MPR121 datastream behaviour constants
@@ -131,10 +131,10 @@ void loop() {
       //Serial.println(" was just touched");
         noteOn(boardChannel, 48+i, 64);
         MidiUSB.flush();
-        delay(100);
+        delay(20);
         noteOff(boardChannel, 48+i, 64);
         MidiUSB.flush();
-        delay(100);
+        delay(20);
     } else if (MPR121.isNewRelease(i)) { //!! THIS LINE NEEDS TO EXIST FOR COUNT FUNCTIONALITY
       //Serial.print("electrode ");
       //Serial.print(i, DEC);
