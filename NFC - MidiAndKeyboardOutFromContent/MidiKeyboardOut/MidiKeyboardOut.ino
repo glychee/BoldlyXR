@@ -55,12 +55,14 @@ void sendMidiNote(byte channel, byte pitch, byte velocity) {
   delay(20);
 }
 
-void sendKeypress(char keyChar){  //Keyboard.releaseAll();
+void sendKeypress(char keyChar) { //Keyboard.releaseAll();
   Keyboard.press(keyChar);
   delay(100);
   Keyboard.release(keyChar);
 }
 
+char previousReadChars[3];
+bool dataChanged = false;
 void loop(void) {
   uint8_t success;
   uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };  // Buffer to store the returned UID
@@ -97,8 +99,16 @@ void loop(void) {
     }
   }
 
+  //Check if data changed
+  if (success && (previousReadChars[0] != readChars[0]) or (previousReadChars[1] != readChars[1]) or (previousReadChars[2] != readChars[2])) {
+    dataChanged = true;
+  }
+  else {
+    //Serial.println("Card is previously read or not changed, skipping");
+  }
+
   //Keyboard and midi output blocks
-  if (dataReadSuccessfully)
+  if (dataReadSuccessfully && dataChanged)
   {
     Serial.print(readChars[0]);
     Serial.print(readChars[1]);
@@ -123,6 +133,10 @@ void loop(void) {
       sendKeypress(readChars[0]);
     }
     // Wait a bit before reading the card again
+    previousReadChars[0] = readChars[0];
+    previousReadChars[1] = readChars[1];
+    previousReadChars[2] = readChars[2];
+    dataChanged = false;
     delay(1000);
   }
 }
