@@ -24,24 +24,23 @@ PN532 nfc(pn532i2c);
 
 void setup(void) {
   Serial.begin(115200);
-  Serial.println("Hello!");
   Keyboard.begin();
   nfc.begin();
 
   uint32_t versiondata = nfc.getFirmwareVersion();
   if (! versiondata) {
-    Serial.print("Didn't find PN53x board");
+    // Serial.print("Didn't find PN53x board");
     while (1); // halt
   }
   // Got ok data, print it out!
-  Serial.print("Found chip PN5"); Serial.println((versiondata >> 24) & 0xFF, HEX);
-  Serial.print("Firmware ver. "); Serial.print((versiondata >> 16) & 0xFF, DEC);
-  Serial.print('.'); Serial.println((versiondata >> 8) & 0xFF, DEC);
+  // Serial.print("Found chip PN5"); // Serial.println((versiondata >> 24) & 0xFF, HEX);
+  // Serial.print("Firmware ver. "); // Serial.print((versiondata >> 16) & 0xFF, DEC);
+  // Serial.print('.'); // Serial.println((versiondata >> 8) & 0xFF, DEC);
 
   // configure board to read RFID tags
   nfc.SAMConfig();
 
-  Serial.println("Waiting for an ISO14443A Card ...");
+  // Serial.println("Waiting for an ISO14443A Card ...");
 }
 
 void sendMidiNote(byte channel, byte pitch, byte velocity) {
@@ -104,32 +103,32 @@ void loop(void) {
     dataChanged = true;
   }
   else {
-    //Serial.println("Card is previously read or not changed, skipping");
+    //// Serial.println("Card is previously read or not changed, skipping");
   }
 
   //Keyboard and midi output blocks
   if (dataReadSuccessfully && dataChanged)
   {
-    Serial.print(readChars[0]);
-    Serial.print(readChars[1]);
-    Serial.print(readChars[2]);
-    Serial.println("");
+    // Serial.print(readChars[0]);
+    // Serial.print(readChars[1]);
+    // Serial.print(readChars[2]);
+    // Serial.println("");
     if (readChars[0] == '#') {
-      Serial.println("Midi");
+      // Serial.println("Midi");
       if (readChars[1] >= 'A' and readChars[1] <= 'G') {
-        Serial.println("Midi without channel"); //defaults to channel 1
+        // Serial.println("Midi without channel"); //defaults to channel 1
         char midiValue = (readChars[1] - 'A'); //translation magic :)
         sendMidiNote(0, midiNotes[midiValue], 64);
       }
       else if (readChars[1] >= '0' and readChars[1] <= '9') {
-        Serial.println("Midi with channel");
+        // Serial.println("Midi with channel");
         char midiChannel = (readChars[1] - '0' - 1); //translation magic :)
         char midiValue = (readChars[2] - 'A'); //translation magic :)
         sendMidiNote(midiChannel, midiNotes[midiValue], 64);
       }
     }
     else if ((readChars[0] >= 'A' and readChars[0] <= 'z') or (readChars[0] >= '0' and readChars[0] <= '9') ) {
-      Serial.println("Keyboard output");
+      // Serial.println("Keyboard output");
       sendKeypress(readChars[0]);
     }
     // Wait a bit before reading the card again
