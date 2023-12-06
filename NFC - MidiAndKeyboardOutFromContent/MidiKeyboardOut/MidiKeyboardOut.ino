@@ -22,6 +22,20 @@ PN532 nfc(pn532i2c);
 #include <Keyboard.h>
 #include "MIDIUSB.h"
 
+//variables for tracking screensaver
+bool screenNeedsSaving = true;
+volatile unsigned long lastActivityTime = 0;
+const long screenSaveTimeDuration = 5000;
+//const char screenSaveChar = 's';
+const char screenSaveMidiNote = 'G';
+const char screenSaveMidiChannel = '1';
+
+void extendScreenSaverTimer() {
+  //reset screensaver timer
+  lastActivityTime = millis();
+  screenNeedsSaving = true;
+}
+
 void setup(void) {
   Serial.begin(115200);
   Keyboard.begin();
@@ -96,6 +110,7 @@ void loop(void) {
       readChars[1] = data[2];
       readChars[2] = data[3];
     }
+    extendScreenSaverTimer();
   }
 
   //Check if data changed
@@ -105,7 +120,16 @@ void loop(void) {
   else {
     //// Serial.println("Card is previously read or not changed, skipping");
   }
-
+  //screensaver code
+  if (screenNeedsSaving && (millis() - lastActivityTime > screenSaveTimeDuration)) {
+    //sendKeypress(screenSaveChar);
+    readChars[0] = '#';
+    readChars[1] = screenSaveMidiChannel;
+    readChars[2] = screenSaveMidiNote;
+    dataReadSuccessfully = true;
+    dataChanged = true;
+    screenNeedsSaving = false;
+  }
   //Keyboard and midi output blocks
   if (dataReadSuccessfully && dataChanged)
   {
