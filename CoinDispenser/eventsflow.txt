@@ -1,0 +1,28 @@
+setup
+screen on
+config rotary encoder
+display chance: min, max, trigger count(?), minimal trigger needed(?)
+on 
+
+loop
+scan card
+
+if valid card && not known (?)
+
+if win
+	win event = now
+	trigger = keypress
+	send keypress
+
+if lose
+	loss event = now
+	trigger = keypress
+
+
+
+while ( now - winevent < wineventduration){
+	if(now - winevent < coindispenseoffset && coinExpended == true){
+	 dispenseCoin()
+	} 
+}
+coinExpended= true;
