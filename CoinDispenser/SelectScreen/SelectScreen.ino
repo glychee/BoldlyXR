@@ -92,7 +92,8 @@ void setup() {
   display.setTextSize(1);
   display.print("XR");
   display.display();
-
+  display.setTextSize(2);
+  
   randomUpperLimit = setValue("Set chance", 10);
   while(!digitalRead(6)){delay(10);};
   delay(30);
