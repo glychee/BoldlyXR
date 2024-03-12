@@ -18,12 +18,13 @@ int maxpos = 85;
 
 void setup() {
   myservo.write(minpos); 
-  myservo.attach(9);  // attaches the servo on pin 9 to the servo object
+  //myservo.attach(9);  // attaches the servo on pin 9 to the servo object
   pinMode(6,INPUT);
 }
 
 void loop() {
   while(digitalRead(6)){};
+  myservo.attach(9); 
   for (pos = minpos; pos <= maxpos; pos += 1) { // goes from 0 degrees to 180 degrees
     // in steps of 1 degree
     myservo.write(pos);              // tell servo to go to position in variable 'pos'
@@ -34,4 +35,5 @@ void loop() {
     myservo.write(pos);              // tell servo to go to position in variable 'pos'
     delay(15);                       // waits 15ms for the servo to reach the position
   }
+  myservo.detach(); 
 }

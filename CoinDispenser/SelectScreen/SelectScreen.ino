@@ -18,6 +18,10 @@
  included in any redistribution.
  **************************************************************************/
 
+
+//1/100
+
+
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
@@ -26,8 +30,10 @@
 #include <Arduino.h>
 #include <BasicEncoder.h>
 
-const int8_t pinA = 4;
-const int8_t pinB = 5;
+#include <string.h>
+
+const int8_t pinA = 5;
+const int8_t pinB = 4;
 
 BasicEncoder encoder(pinA, pinB);
 
@@ -38,8 +44,30 @@ BasicEncoder encoder(pinA, pinB);
 #define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-#define NUMFLAKES     10 // Number of snowflakes in the animation example
 
+uint8_t randomUpperLimit = 0;
+uint8_t randomLowerLimit = 0;
+
+int setValue(String message, uint8_t startValue){
+  randomSeed(analogRead(0));
+  pinMode(6,INPUT);
+  encoder.reset();
+  //set random chance
+  while(digitalRead(6)){
+    encoder.service();
+    int encoder_change = encoder.get_change();
+    if (encoder_change) {
+ 
+    display.clearDisplay();  
+    display.setCursor(0, 0);
+    display.println(message);
+    display.println("1/"+String(startValue+encoder.get_count()));
+    display.println(String(100.0/(startValue+encoder.get_count()))+"%");
+    display.display();
+    } 
+  }
+  return(startValue+encoder.get_count());
+}
 
 void setup() {
   Serial.begin(9600);
@@ -51,24 +79,43 @@ void setup() {
   }
   
   display.clearDisplay();
-  display.display();
-  display.setTextSize(1);      // Normal 1:1 pixel scale
+  display.setTextSize(2);      // Normal 1:1 pixel scale
   display.setTextColor(SSD1306_WHITE); // Draw white text
   display.setCursor(0, 0);     // Start at top-left corner
   display.cp437(true);         // Use full 256 char 'Code Page 437' font  
-  pinMode(6,INPUT);
-  while(digitalRead(6)){
-      encoder.service();
-    int encoder_change = encoder.get_change();
-    if (encoder_change) {
-    Serial.println(encoder.get_count());
-    display.write(encoder.get_count());
-    display.display();
-    } 
-  }
+  
+  display.println("Powered");
+  display.setCursor(0, 22); 
+  display.println("by");
+  display.setCursor(0, 44);
+  display.print("BOLDLY");
+  display.setTextSize(1);
+  display.print("XR");
+  display.display();
+
+  randomUpperLimit = setValue("Set chance", 10);
+  while(!digitalRead(6)){delay(10);};
+  delay(30);
+    
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  display.println("The chance");
+  display.println("to win is:");
+  display.println("1/"+String(randomUpperLimit));
+  display.display();
+  
 }
 
 void loop() {
+    
+    while(digitalRead(6)){delay(10);};
+    while(!digitalRead(6)){delay(10);};
+    display.clearDisplay();
+    display.setCursor(0, 0);
+    int randomValue = random(0,randomUpperLimit);
+    display.println("You " + String(randomValue?"Lose":"Win"));
+    display.println("the value was: " + String(randomValue));
+    display.display();
 }
 
 void testdrawline() {
